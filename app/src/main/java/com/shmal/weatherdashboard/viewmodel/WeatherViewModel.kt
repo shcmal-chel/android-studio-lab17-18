@@ -10,6 +10,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class WeatherViewModel : ViewModel() {
@@ -18,7 +21,22 @@ class WeatherViewModel : ViewModel() {
     val weatherState: StateFlow<WeatherData> = _weatherState.asStateFlow()
     init {
         loadWeatherData()
+        startAutoRefresh()
     }
+
+    private fun startAutoRefresh() {
+        viewModelScope.launch {
+            flow {
+                while (true) {
+                    delay(10000)
+                    emit(Unit)
+                }
+            }.collect {
+                loadWeatherData()
+            }
+        }
+    }
+
     /**
      * Демонстрация работы диспетчеров:
      *
